@@ -1,0 +1,54 @@
+from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, visualization, result
+from qiskit.visualization import plot_bloch_multivector
+from qiskit.visualization import array_to_latex
+from qiskit.quantum_info import Statevector
+from qiskit import execute, Aer
+from tkinter import Tk,Canvas,ALL
+from qiskit.tools.visualization import plot_histogram
+from numpy import pi
+# QUANTUM COMPUTATION
+def quantum_random_number():
+    simulator = Aer.get_backend('aer_simulator')
+    qreg_q = QuantumRegister(2, 'q')
+    creg_c = ClassicalRegister(2, 'c')
+    circuit = QuantumCircuit(qreg_q, creg_c)
+    circuit.reset(qreg_q[0])
+    circuit.reset(qreg_q[1])
+    circuit.h(qreg_q[1])
+    circuit.h(qreg_q[0])
+    circuit.measure([0, 1],[0, 1])
+    job = execute(circuit, simulator, shots=1, memory=True)               
+    counts = job.result().get_counts(circuit)
+    memory = job.result().get_memory(circuit)
+    quantum_value = int("".join(memory),2)
+    return quantum_value
+# CLASSICAL TRAP-THE-BALL-GAME
+root=Tk()
+root.title("Framed ball")
+cw = 800
+ch = 400
+canvas=Canvas(root ,width=cw, height=ch,background='white')
+canvas.grid(row=0,column=0)
+delay=20
+rad=20
+color="red"
+x=rad*quantum_random_number()
+y=rad*quantum_random_number()
+vx = 10*quantum_random_number()
+vy= - 10*quantum_random_number()
+
+while True:
+    canvas.delete(ALL)
+    canvas.create_oval(x-rad, y-rad, x+rad, y+rad, fill=color)
+    canvas.update()
+    if (x+rad) >= cw:
+        vx = quantum_random_number()-abs(vx)
+    elif (y+rad) >= ch:
+        vy = quantum_random_number()-abs(vy)
+    elif x <= rad:
+        vx = quantum_random_number()+abs(vx)
+    elif y <= rad:
+        vy = quantum_random_number()+abs(vy)
+    x += vx
+    y += vy
+    canvas.after(delay)
